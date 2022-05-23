@@ -9,6 +9,9 @@ class User(AbstractUser):
 class Agent(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.user.email
+
 
 class Lead(models.Model):
     first_name = models.CharField(max_length=20)
@@ -19,7 +22,9 @@ class Lead(models.Model):
     # OR
     #agent = models.ForeignKey("Agent", on_delete) 
     #"Agent" tells Django that class Agent is in this file
-
+    
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
 
 
 
