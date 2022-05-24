@@ -1,10 +1,12 @@
-from multiprocessing import context
+from django.core.mail import send_mail
 from typing import List
 from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse
 from django.views import generic
 from .models import Lead, Agent
 from .forms import LeadModelForm
+from multiprocessing import context
+
 
 
 class LandingPageView(generic.TemplateView):
@@ -50,6 +52,15 @@ class LeadCreateView(generic.CreateView):
     form_class = LeadModelForm
     def get_success_url(self):
         return reverse("leads:lead-list")
+    def form_valid(self, form):
+        # TODO send email
+        send_mail(
+            subject="A new lead is created",
+            message="just Log in",
+            from_email="ilyasaliev1@gmail.com",
+            recipient_list=["ilyasaliev1@gmail.com"]
+        )
+        return super(LeadCreateView, self).form_valid(form)
 
         
 
