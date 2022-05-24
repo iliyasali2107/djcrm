@@ -8,7 +8,7 @@ from .forms import LeadModelForm
 from multiprocessing import context
 
 
-
+# landing page 
 class LandingPageView(generic.TemplateView):
     template_name = 'landing.html'
 
