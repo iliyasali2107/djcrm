@@ -1,3 +1,4 @@
+from urllib import request
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -35,11 +36,28 @@ class LeadListView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         user = self.request.user
         if user.is_organisor:
-            queryset = Lead.objects.filter(organisation=user.userprofile)
+            queryset = Lead.objects.filter(
+                organisation=user.userprofile, 
+                agent__isnull=False
+                )
         else:
-            queryset = Lead.objects.filter(organisation=user.agent.organisation)
+            queryset = Lead.objects.filter(organisation=user.agent.organisation, agent__isnull=False)
             queryset = Lead.objects.filter(agent__user = user)
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(LeadListView, self).get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_organisor:
+            queryset = Lead.objects.filter(
+                organisation=user.userprofile, 
+                agent__isnull=True
+                )
+            context.update({
+                "unassigned_leads": queryset
+            })
+        return context
+
 
 
 def lead_list(request):
@@ -77,9 +95,14 @@ def lead_detail(request, pk):
 class LeadCreateView(OrganisorAndLoginRequiredMixin, generic.CreateView):
     template_name = "leads/lead_create.html"
     form_class = LeadModelForm
+
     def get_success_url(self):
         return reverse("leads:lead-list")
+
     def form_valid(self, form):
+        lead = form.save(commit=False)
+        lead.organisation = self.request.user.userprofile
+        lead.save()
         # TODO send email
         send_mail(
             subject="A new lead is created",
