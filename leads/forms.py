@@ -29,3 +29,15 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ("username",)
         field_classes = {"username": UsernameField}
 
+
+class AssignAgentForm(forms.Form):
+    agent = forms.ModelChoiceField(queryset= None)
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop("request")
+        agents = Agent.objects.filter(organisation=request.user.userprofile)
+        super(AssignAgentForm, self).__init__(*args, **kwargs)
+        self.fields["agent"].queryset = agents
+
+
+    
