@@ -41,3 +41,9 @@ class AssignAgentForm(forms.Form):
 
 
     
+class LeadCategoryModelForm(forms.ModelForm):
+    class Meta:
+        model = Lead
+        fields = (
+            'category',
+        )

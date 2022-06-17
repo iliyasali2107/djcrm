@@ -16,6 +16,22 @@ class UserProfile(models.Model):
         return self.user.username
 
 
+class Lead(models.Model):
+    first_name = models.CharField(max_length=20)
+    last_name = models.CharField(max_length=20)
+    age = models.IntegerField(default=0)
+    organisation = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    agent = models.ForeignKey("Agent", null=True, blank=True, on_delete=models.SET_NULL)
+    category = models.ForeignKey("Category", related_name="leads", null=True, blank=True, on_delete=models.SET_NULL)
+    #foreign class(Agent) should come first, to be recognized
+    # OR
+    #agent = models.ForeignKey("Agent", on_delete) 
+    #"Agent" tells Django that class Agent is in this file
+    
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+
 class Agent(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     organisation = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
@@ -24,19 +40,16 @@ class Agent(models.Model):
         return self.user.email
 
 
-class Lead(models.Model):
-    first_name = models.CharField(max_length=20)
-    last_name = models.CharField(max_length=20)
-    age = models.IntegerField(default=0)
-    organisation = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    agent = models.ForeignKey(Agent, null=True, blank=True, on_delete=models.SET_NULL)
-    #foreign class(Agent) should come first, to be recognized
-    # OR
-    #agent = models.ForeignKey("Agent", on_delete) 
-    #"Agent" tells Django that class Agent is in this file
-    
+
+class Category(models.Model):
+    name = models.CharField(max_length=30)
+    organisation = models.ForeignKey("UserProfile", on_delete=models.CASCADE)
+
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return self.name
+
+
+
 
 def post_user_created_signal(sender, instance, created, **kwargs):
     if created:
